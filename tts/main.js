@@ -118,39 +118,44 @@ module.exports = (voiceName, text) => {
 				console.log("user used voiceforge voice");
 			}
 			case "vocalware": {
-				var [eid, lid, vid] = voice.arg;
-				var cs = md5(`${eid}${lid}${vid}${text}1mp35883747uetivb9tb8108wfj`);
-				var q = qs.encode({
-					EID: voice.arg[0],
-					LID: voice.arg[1],
-					VID: voice.arg[2],
-					TXT: text,
-					EXT: "mp3",
-					IS_UTF8: 1,
-					ACC: 5883747,
-					cache_flag: 3,
-					CS: cs,
-				});
-				var req = https.get(
-					{
-						host: "cache-a.oddcast.com",
-						path: `/tts/gen.php?${q}`,
-						headers: {
-							Referer: "https://www.oddcast.com/",
-							Origin: "https://www.oddcast.com/",
-							"User-Agent":
-								"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
-						},
-					},
-					(r) => {
-						var buffers = [];
-						r.on("data", (d) => buffers.push(d));
-						r.on("end", () => res(Buffer.concat(buffers)));
-						r.on("error", rej);
-					}
-				);
-				break;
-			}
+					const [EID, LID, VID] = voice.arg;
+					const q = new URLSearchParams({
+						EID,
+						LID,
+						VID,
+						TXT: text,
+						EXT: "mp3",
+						FNAME: "",
+						ACC: 15679,
+						SceneID: 2703396,
+						HTTP_ERR: "",
+					}).toString();
+
+					console.log(`https://cache-a.oddcast.com/tts/genB.php?${q}`)
+					https
+						.get(
+							{
+								hostname: "cache-a.oddcast.com",
+								path: `/tts/genB.php?${q}`,
+								headers: {
+									"Host": "cache-a.oddcast.com",
+									"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",
+									"Accept": "*/*",
+									"Accept-Language": "en-US,en;q=0.5",
+									"Accept-Encoding": "gzip, deflate, br",
+									"Origin": "https://www.oddcast.com",
+									"DNT": 1,
+									"Connection": "keep-alive",
+									"Referer": "https://www.oddcast.com/",
+									"Sec-Fetch-Dest": "empty",
+									"Sec-Fetch-Mode": "cors",
+									"Sec-Fetch-Site": "same-site"
+								}
+							}, res
+						)
+						.on("error", rej);
+					break;
+				}
 			case "voicery": {
 				 console.log("Voicery shut down in 2020. Voices will be removed soon.");
 			}
